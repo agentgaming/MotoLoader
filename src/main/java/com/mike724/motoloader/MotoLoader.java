@@ -1,4 +1,4 @@
-package org.mike724.motoloader;
+package com.mike724.motoloader;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;

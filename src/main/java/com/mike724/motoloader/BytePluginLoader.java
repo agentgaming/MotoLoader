@@ -1,4 +1,4 @@
-package org.mike724.motoloader;
+package com.mike724.motoloader;
 
 import java.io.*;
 import java.lang.reflect.Constructor;
