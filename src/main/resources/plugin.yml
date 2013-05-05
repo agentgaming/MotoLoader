@@ -1,0 +1,4 @@
+name: MotoLoader
+authors: [Dakota628, Mike724]
+version: ${version}
+main: com.mike724.motoloader.MotoLoader
