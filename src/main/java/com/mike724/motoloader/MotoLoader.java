@@ -1,6 +1,7 @@
 package com.mike724.motoloader;
 
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -19,9 +20,10 @@ public final class MotoLoader extends JavaPlugin {
         try {
             this.getServer().getPluginManager().registerInterface(BytePluginLoader.class);
             BytePluginLoader bpl = new BytePluginLoader(this.getServer());
-            bpl.loadPlugin(readFile(new File(this.getDataFolder(),"test.jar")));
+            Plugin p = bpl.loadPlugin(readFile(new File(this.getDataFolder(),"test.jar")));
+            bpl.enablePlugin(p);
         } catch(Exception e) {
-
+            e.printStackTrace();
         }
     }
 
