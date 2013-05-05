@@ -21,7 +21,7 @@ public final class MotoLoader extends JavaPlugin {
             BytePluginLoader bpl = new BytePluginLoader(this.getServer());
             bpl.loadPlugin(readFile(new File(this.getDataFolder(),"test.jar")));
         } catch(Exception e) {
-
+            e.printStackTrace();
         }
     }
 
