@@ -109,6 +109,15 @@ public class BytePluginLoader extends JavaPluginLoader {
             }
 
             //H4X the class loader
+            for(Field f : loader.getClass().getDeclaredFields()) {
+                System.out.println("Declared: " + f.getName());
+            }
+
+            for(Field f : loader.getClass().getFields()) {
+                System.out.println("Generic: " + f.getName());
+            }
+
+
             Field f = loader.getClass().getDeclaredField("classes");
             f.setAccessible(true);
             Map<String, Class<?>> classes = (HashMap<String, Class<?>>) f.get(new HashMap<String, Class<?>>().getClass());
