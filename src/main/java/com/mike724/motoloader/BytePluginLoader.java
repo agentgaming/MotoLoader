@@ -104,20 +104,11 @@ public class BytePluginLoader extends JavaPluginLoader {
             if (description.getClassLoaderOf() != null) {
                 loader = loaders0.get(description.getClassLoaderOf());
             } else {
-                PluginClassLoader.class.getConstructor(JavaPluginLoader.class,URL[].class,ClassLoader.class).newInstance(this, new URL[]{}, getClass().getClassLoader());
+                loader = PluginClassLoader.class.getConstructor(JavaPluginLoader.class,URL[].class,ClassLoader.class).newInstance(this, new URL[]{}, getClass().getClassLoader());
                 //loader = new PluginClassLoader(this, new URL[]{}, getClass().getClassLoader(), null);
             }
 
             //H4X the class loader
-            for(Field f : loader.getClass().getDeclaredFields()) {
-                System.out.println("Declared: " + f.getName());
-            }
-
-            for(Field f : loader.getClass().getFields()) {
-                System.out.println("Generic: " + f.getName());
-            }
-
-
             Field f = loader.getClass().getDeclaredField("classes");
             f.setAccessible(true);
             Map<String, Class<?>> classes = (HashMap<String, Class<?>>) f.get(new HashMap<String, Class<?>>().getClass());
