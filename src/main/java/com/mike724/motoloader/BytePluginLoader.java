@@ -115,10 +115,7 @@ public class BytePluginLoader extends JavaPluginLoader {
 
             Map<String, byte[]> classesToLoad = new HashMap<String, byte[]>();
 
-            //this will be the decrypted bytes
-            byte[] b = null;
-
-            ByteArrayInputStream bis = new ByteArrayInputStream(b);
+            ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
             JarInputStream jis = new JarInputStream(bis);
 
             JarEntry je;
