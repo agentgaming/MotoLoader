@@ -104,7 +104,7 @@ public class BytePluginLoader extends JavaPluginLoader {
             if (description.getClassLoaderOf() != null) {
                 loader = loaders0.get(description.getClassLoaderOf());
             } else {
-                PluginClassLoader.class.getConstructor(JavaPluginLoader.class,URL[].class,ClassLoader.class).newInstance(this, new URL[]{}, getClass().getClassLoader(), null);
+                PluginClassLoader.class.getConstructor(JavaPluginLoader.class,URL[].class,ClassLoader.class).newInstance(this, new URL[]{}, getClass().getClassLoader());
                 //loader = new PluginClassLoader(this, new URL[]{}, getClass().getClassLoader(), null);
             }
 
