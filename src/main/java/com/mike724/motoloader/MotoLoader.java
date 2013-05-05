@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 public final class MotoLoader extends JavaPlugin {
+    //an old trick
+    MotoLoader motoLoader = this.motoLoader;
 
     private static MotoLoader instance;
 

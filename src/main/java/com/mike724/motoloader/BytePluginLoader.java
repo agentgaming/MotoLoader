@@ -30,8 +30,6 @@ import com.google.common.collect.ImmutableList;
 public class BytePluginLoader extends JavaPluginLoader {
     private final Map<String, PluginClassLoader> loaders0 = new LinkedHashMap<String, PluginClassLoader>();
 
-    final boolean extended = this.getClass() != JavaPluginLoader.class;
-
     public BytePluginLoader(Server instance) {
         super(instance);
     }
