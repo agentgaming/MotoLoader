@@ -1,15 +1,10 @@
 package com.mike724.motoloader;
 
 import java.io.*;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.logging.Level;
@@ -109,11 +104,16 @@ public class BytePluginLoader extends JavaPluginLoader {
             }
 
             //H4X the class loader
-            Field f = loader.getClass().getDeclaredField("classes");
+            Field f = findUnderlying(loader.getClass(), "classes");
             f.setAccessible(true);
-            Map<String, Class<?>> classes = (HashMap<String, Class<?>>) f.get(new HashMap<String, Class<?>>().getClass());
 
-            Map<String, byte[]> classesToLoad = new HashMap<String, byte[]>();
+            Field modifiersField = Field.class.getDeclaredField("modifiers");
+            modifiersField.setAccessible(true);
+            modifiersField.setInt(f, f.getModifiers() & ~Modifier.FINAL);
+
+            ConcurrentHashMap<String,Class<?>> classes = new ConcurrentHashMap<String,Class<?>>();
+
+            ConcurrentHashMap<String, byte[]> classesToLoad = new ConcurrentHashMap<String, byte[]>();
 
             ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
             JarInputStream jis = new JarInputStream(bis);
@@ -151,7 +151,7 @@ public class BytePluginLoader extends JavaPluginLoader {
                 classesToLoad.remove(n);
             }
 
-            f.set(new HashMap<String, Class<?>>().getClass(), (Object) classes);
+            f.set(new HashMap<String, Class<?>>(), (Object) classes);
 
             //Load it
 
@@ -235,5 +235,15 @@ public class BytePluginLoader extends JavaPluginLoader {
         bis.close();
 
         return out;
+    }
+
+    public static Field findUnderlying(Class<?> clazz, String fieldName) {
+        Class<?> current = clazz;
+        do {
+            try {
+                return current.getDeclaredField(fieldName);
+            } catch(Exception e) {}
+        } while((current = current.getSuperclass()) != null);
+        return null;
     }
 }
