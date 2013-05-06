@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableList;
  * Represents a Java plugin loader, allowing plugins in the form of .jar
  */
 public class BytePluginLoader extends JavaPluginLoader {
-    private final Map<String, PluginClassLoader> loaders0 = new LinkedHashMap<String, PluginClassLoader>();
+    private final Map<String, PluginByteClassLoader> loaders0 = new LinkedHashMap<String, PluginByteClassLoader>();
 
     public BytePluginLoader(Server instance) {
         super(instance);
@@ -84,74 +84,26 @@ public class BytePluginLoader extends JavaPluginLoader {
             if (loaders0 == null) {
                 throw new UnknownDependencyException(pluginName);
             }
-            PluginClassLoader current = loaders0.get(pluginName);
+            PluginByteClassLoader current = loaders0.get(pluginName);
 
             if (current == null) {
                 throw new UnknownDependencyException(pluginName);
             }
         }
 
-        PluginClassLoader loader = null;
+        PluginByteClassLoader loader = null;
         JavaPlugin result = null;
 
         try {
 
-            if (description.getClassLoaderOf() != null) {
-                loader = loaders0.get(description.getClassLoaderOf());
-            } else {
-                loader = PluginClassLoader.class.getConstructor(JavaPluginLoader.class,URL[].class,ClassLoader.class).newInstance(this, new URL[]{}, getClass().getClassLoader());
+            //if (description.getClassLoaderOf() != null) {
+            //    loader = loaders0.get(description.getClassLoaderOf());
+            //} else {
+                loader = new PluginByteClassLoader(this,bytes,this.getClass().getClassLoader());
+
+                //loader = PluginClassLoader.class.getConstructor(JavaPluginLoader.class,URL[].class,ClassLoader.class).newInstance(this, new URL[]{}, getClass().getClassLoader());
                 //loader = new PluginClassLoader(this, new URL[]{}, getClass().getClassLoader(), null);
-            }
-
-            //H4X the class loader
-            Field f = findUnderlying(loader.getClass(), "classes");
-            f.setAccessible(true);
-
-            Field modifiersField = Field.class.getDeclaredField("modifiers");
-            modifiersField.setAccessible(true);
-            modifiersField.setInt(f, f.getModifiers() & ~Modifier.FINAL);
-
-            ConcurrentHashMap<String,Class<?>> classes = new ConcurrentHashMap<String,Class<?>>();
-
-            ConcurrentHashMap<String, byte[]> classesToLoad = new ConcurrentHashMap<String, byte[]>();
-
-            ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-            JarInputStream jis = new JarInputStream(bis);
-
-            JarEntry je;
-            while ((je = jis.getNextJarEntry()) != null) {
-                if (je.isDirectory() || !je.getName().endsWith(".class")) {
-                    continue;
-                }
-
-                //Get class name
-                String className = je.getName().substring(0, je.getName().length() - 6);
-                className = className.replace('/', '.');
-
-                //Get class bytes
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                int i = 0;
-                byte[] data = new byte[1024];
-
-                while ((i = jis.read(data, 0, data.length)) != -1) {
-                    bos.write(data, 0, i);
-                }
-                byte[] classBytes = bos.toByteArray();
-
-                classesToLoad.put(className, classBytes);
-            }
-
-            jis.close();
-            bis.close();
-
-            ByteClassLoader bcl = new ByteClassLoader(classesToLoad);
-
-            for (String n : classesToLoad.keySet()) {
-                classes.put(n, bcl.loadClass(n));
-                classesToLoad.remove(n);
-            }
-
-            f.set(new HashMap<String, Class<?>>(), (Object) classes);
+            //}
 
             //Load it
 
