@@ -1,7 +1,13 @@
 package com.mike724.motoloader;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,19 +17,64 @@ import java.util.Map;
  * To change this template use File | Settings | File Templates.
  */
 public class ByteClassLoader extends ClassLoader {
-    private final Map<String, byte[]> classDefs;
+    private HashMap<String, byte[]> classBytes  = new HashMap<String, byte[]>();
 
-    public ByteClassLoader(Map<String, byte[]> extraClassDefs) {
-        this.classDefs = new HashMap<String, byte[]>(extraClassDefs);
+    public ByteClassLoader(byte[] jarBytes) {
+        super(ByteClassLoader.class.getClassLoader());
+        try {
+            ByteArrayInputStream bis = new ByteArrayInputStream(jarBytes);
+            JarInputStream jis = new JarInputStream(bis);
+
+            JarEntry je;
+            while ((je = jis.getNextJarEntry()) != null) {
+                if (je.isDirectory() || !je.getName().endsWith(".class")) continue;
+
+                //Get class name
+                String className = je.getName().substring(0, je.getName().length() - 6);
+                className = className.replace('/', '.');
+
+                //Get class bytes
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                int i;
+                byte[] data = new byte[1024];
+
+                while ((i = jis.read(data, 0, data.length)) != -1) {
+                    bos.write(data, 0, i);
+                }
+
+                byte[] classBytes = bos.toByteArray();
+
+                addClass(className, classBytes);
+            }
+            jis.close();
+            bis.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    @Override
-    protected Class<?> findClass(final String name) throws ClassNotFoundException {
-        byte[] classBytes = this.classDefs.remove(name);
-        if (classBytes != null) {
-            return defineClass(name, classBytes, 0, classBytes.length);
+    private void addClass(String name, byte[] data) {
+        classBytes.put(name, data);
+    }
+
+    public Class loadClass(String name) throws ClassNotFoundException {
+        return findClass(name);
+    }
+
+    public Class findClass(String name) throws ClassNotFoundException {
+        Class result = null;
+        try {
+            if (classBytes.containsKey(name)) {
+                result = defineClass(name, classBytes.get(name), 0, classBytes.get(name).length, null);
+            } else {
+                result = super.loadClass(name, true);
+            }
+
+        } catch (Exception e) {
+            System.out.println(e.toString());
+            return null;
         }
-        return super.findClass(name);
+        return result;
     }
 
 }
