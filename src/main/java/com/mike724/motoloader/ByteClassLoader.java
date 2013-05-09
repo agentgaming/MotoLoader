@@ -1,8 +1,13 @@
 package com.mike724.motoloader;
 
+import org.bukkit.plugin.java.JavaPluginLoader;
+import org.bukkit.plugin.java.PluginClassLoader;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URL;
+import java.security.CodeSource;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -16,11 +21,12 @@ import java.util.jar.JarInputStream;
  * Time: 2:00 PM
  * To change this template use File | Settings | File Templates.
  */
-public class ByteClassLoader extends ClassLoader {
-    private HashMap<String, byte[]> classBytes  = new HashMap<String, byte[]>();
+public class ByteClassLoader extends PluginClassLoader {
+    private HashMap<String, byte[]> classBytez  = new HashMap<String, byte[]>();
+    private ClassLoader cl;
 
-    public ByteClassLoader(byte[] jarBytes) {
-        super(ByteClassLoader.class.getClassLoader());
+    public ByteClassLoader(JavaPluginLoader jpl, byte[] jarBytes) {
+        super(jpl,new URL[]{},ByteClassLoader.class.getClassLoader());
         try {
             ByteArrayInputStream bis = new ByteArrayInputStream(jarBytes);
             JarInputStream jis = new JarInputStream(bis);
@@ -32,6 +38,7 @@ public class ByteClassLoader extends ClassLoader {
                 //Get class name
                 String className = je.getName().substring(0, je.getName().length() - 6);
                 className = className.replace('/', '.');
+                System.out.println("'"+className+"'");
 
                 //Get class bytes
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -54,7 +61,7 @@ public class ByteClassLoader extends ClassLoader {
     }
 
     private void addClass(String name, byte[] data) {
-        classBytes.put(name, data);
+        classBytez.put(name, data);
     }
 
     public Class loadClass(String name) throws ClassNotFoundException {
@@ -64,8 +71,8 @@ public class ByteClassLoader extends ClassLoader {
     public Class findClass(String name) throws ClassNotFoundException {
         Class result = null;
         try {
-            if (classBytes.containsKey(name)) {
-                result = defineClass(name, classBytes.get(name), 0, classBytes.get(name).length, null);
+            if (classBytez.containsKey(name)) {
+                result = defineClass(name, classBytez.get(name), 0, classBytez.get(name).length, (CodeSource)null);
             } else {
                 result = super.loadClass(name, true);
             }
