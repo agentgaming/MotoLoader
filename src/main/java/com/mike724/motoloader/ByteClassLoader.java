@@ -1,5 +1,7 @@
 package com.mike724.motoloader;
 
+import org.bukkit.plugin.PluginLoader;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
 import org.bukkit.plugin.java.PluginClassLoader;
 
@@ -25,8 +27,9 @@ public class ByteClassLoader extends PluginClassLoader {
     private HashMap<String, byte[]> classBytez  = new HashMap<String, byte[]>();
     private ClassLoader cl;
 
-    public ByteClassLoader(JavaPluginLoader jpl, byte[] jarBytes) {
-        super(jpl,new URL[]{},ByteClassLoader.class.getClassLoader());
+    public ByteClassLoader(JavaPlugin jp, byte[] jarBytes) {
+        super((JavaPluginLoader) jp.getPluginLoader(),new URL[]{},ByteClassLoader.class.getClassLoader());
+        cl = jp.getClass().getClassLoader();
         try {
             ByteArrayInputStream bis = new ByteArrayInputStream(jarBytes);
             JarInputStream jis = new JarInputStream(bis);
@@ -38,7 +41,6 @@ public class ByteClassLoader extends PluginClassLoader {
                 //Get class name
                 String className = je.getName().substring(0, je.getName().length() - 6);
                 className = className.replace('/', '.');
-                System.out.println("'"+className+"'");
 
                 //Get class bytes
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -74,7 +76,10 @@ public class ByteClassLoader extends PluginClassLoader {
             if (classBytez.containsKey(name)) {
                 result = defineClass(name, classBytez.get(name), 0, classBytez.get(name).length, (CodeSource)null);
             } else {
-                result = super.loadClass(name, true);
+                result = cl.loadClass(name);
+                if(result == null) result = super.loadClass(name, true);
+                if(result == null) result = getSystemClassLoader().loadClass(name);
+                if(result == null) result = MotoLoader.getInstance().getClass().getClassLoader().loadClass(name);
             }
 
         } catch (Exception e) {
