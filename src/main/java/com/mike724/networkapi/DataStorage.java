@@ -35,7 +35,7 @@ public class DataStorage {
         }
 
         String decrypted = Security.decrypt(out, "l215/n13f63902pa");
-        InputStream is = new ByteArrayInputStream(Base64.decodeBase64(decrypted.getBytes()));
+        InputStream is = new ByteArrayInputStream(decrypted.getBytes());
 
         AWSCredentials credentials = new PropertiesCredentials(is);
 
