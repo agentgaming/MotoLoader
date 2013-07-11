@@ -115,4 +115,33 @@ public class DataStorage {
 
         return objs;
     }
+
+    public List<Object> getObjectsByClass(Class c, Integer limit) {
+        Condition hashKeyCondition = new Condition()
+                .withComparisonOperator(ComparisonOperator.EQ.toString())
+                .withAttributeValueList(new AttributeValue(c.getName()));
+
+        Map<String, Condition> keyConditions = new HashMap<String, Condition>();
+        keyConditions.put("object_class", hashKeyCondition);
+
+        QueryRequest request = new QueryRequest()
+                .withTableName(TABLE_NAME)
+                .withAttributesToGet("object_data")
+                .withKeyConditions(keyConditions)
+                .withLimit(limit);
+
+        QueryResult result = db.query(request);
+
+        if(result.getItems().size() < 1) return null;
+
+        String objectData = result.getItems().get(0).get("object_data").getS();
+
+        ArrayList<Object> objs = new ArrayList<Object>();
+
+        for(Map<String, AttributeValue> i : result.getItems()) {
+            objs.add(gson.fromJson(i.get("object_data").getS(),c));
+        }
+
+        return objs;
+    }
 }
