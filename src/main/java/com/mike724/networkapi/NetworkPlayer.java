@@ -11,18 +11,20 @@ public class NetworkPlayer {
     private Boolean isBanned;
     private Boolean isOnline;
     private NetworkRank rank;
+    private long joinDate;
 
-    public NetworkPlayer(String player, Integer tokens, Integer cash, Boolean isBanned, Boolean isOnline, NetworkRank rank) {
+    public NetworkPlayer(String player, Integer tokens, Integer cash, Boolean isBanned, Boolean isOnline, NetworkRank rank, long joinDate) {
         this.player = player;
         this.tokens = tokens;
         this.cash = cash;
         this.isBanned = isBanned;
         this.isOnline = isOnline;
         this.rank = rank;
+        this.joinDate = joinDate;
     }
 
     public NetworkPlayer(String player) {
-        this(player, 0, 0, false, false, NetworkRank.USER);
+        this(player, 0, 0, false, false, NetworkRank.USER,System.currentTimeMillis());
     }
 
     public Integer getTokens() {
