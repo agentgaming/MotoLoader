@@ -6,7 +6,7 @@ import java.net.URL;
 
 import static com.mike724.networkapi.HTTPUtils.basicAuthPost;
 
-public class JarGetter {
+class JarGetter {
     public static byte[] getJar(int id) {
         try {
             URL api = new URL("http://meyernet.co/api/get_plugin.php");

@@ -19,17 +19,17 @@ public final class MotoLoader extends JavaPlugin {
     public void onEnable() {
         instance = this;
         try {
-            File f = new File(this.getDataFolder(),"plugin.id");
-            if(!f.exists()) {
+            File f = new File(this.getDataFolder(), "plugin.id");
+            if (!f.exists()) {
                 f.createNewFile();
-                this.getLogger().log(Level.SEVERE,"PLEASE SET YOUR PLUGIN ID");
+                this.getLogger().log(Level.SEVERE, "PLEASE SET YOUR PLUGIN ID");
                 this.getServer().getPluginManager().disablePlugin(this);
                 return;
             }
 
             ArrayList<String> idString = (ArrayList<String>) IOUtils.readLines(new FileInputStream(f));
-            if(idString.size() <= 0) {
-                this.getLogger().log(Level.SEVERE,"PLEASE SET YOUR PLUGIN ID");
+            if (idString.size() <= 0) {
+                this.getLogger().log(Level.SEVERE, "PLEASE SET YOUR PLUGIN ID");
                 this.getServer().getPluginManager().disablePlugin(this);
                 return;
             }
@@ -41,7 +41,7 @@ public final class MotoLoader extends JavaPlugin {
             loadedPlugin = MotoPluginLoader.loadPlugin(decrypted, this, this.getFile());
         } catch (NumberFormatException nfe) {
             this.getLogger().log(Level.SEVERE, "INVALID PLUGIN ID");
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

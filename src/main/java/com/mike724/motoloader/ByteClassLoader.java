@@ -1,6 +1,5 @@
 package com.mike724.motoloader;
 
-import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
 import org.bukkit.plugin.java.PluginClassLoader;
@@ -11,24 +10,15 @@ import java.io.IOException;
 import java.net.URL;
 import java.security.CodeSource;
 import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Dakota
- * Date: 5/5/13
- * Time: 2:00 PM
- * To change this template use File | Settings | File Templates.
- */
-public class ByteClassLoader extends PluginClassLoader {
-    private HashMap<String, byte[]> classBytez  = new HashMap<String, byte[]>();
+class ByteClassLoader extends PluginClassLoader {
+    private HashMap<String, byte[]> classBytez = new HashMap<String, byte[]>();
     private ClassLoader cl;
 
     public ByteClassLoader(JavaPlugin jp, byte[] jarBytes) {
-        super((JavaPluginLoader) jp.getPluginLoader(),new URL[]{},ByteClassLoader.class.getClassLoader());
+        super((JavaPluginLoader) jp.getPluginLoader(), new URL[]{}, ByteClassLoader.class.getClassLoader());
         cl = jp.getClass().getClassLoader();
         try {
             ByteArrayInputStream bis = new ByteArrayInputStream(jarBytes);
@@ -74,12 +64,12 @@ public class ByteClassLoader extends PluginClassLoader {
         Class result = null;
         try {
             if (classBytez.containsKey(name)) {
-                result = defineClass(name, classBytez.get(name), 0, classBytez.get(name).length, (CodeSource)null);
+                result = defineClass(name, classBytez.get(name), 0, classBytez.get(name).length, (CodeSource) null);
             } else {
                 result = cl.loadClass(name);
-                if(result == null) result = super.loadClass(name, true);
-                if(result == null) result = getSystemClassLoader().loadClass(name);
-                if(result == null) result = MotoLoader.getInstance().getClass().getClassLoader().loadClass(name);
+                if (result == null) result = super.loadClass(name, true);
+                if (result == null) result = getSystemClassLoader().loadClass(name);
+                if (result == null) result = MotoLoader.getInstance().getClass().getClassLoader().loadClass(name);
             }
 
         } catch (Exception e) {

@@ -5,11 +5,8 @@ import com.amazonaws.auth.PropertiesCredentials;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.model.*;
 import com.google.gson.Gson;
-import com.mike724.motoloader.Security;
-import org.apache.commons.codec.binary.Base64;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -30,7 +27,7 @@ public class DataStorage {
         String params = String.format("key=%s", key);
         String out = basicAuthPost(api, params, username, password);
 
-        if (out.trim() == "0") {
+        if (out.trim().equals("0")) {
             throw new Exception("Nice try.");
         }
 
