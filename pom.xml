@@ -51,10 +51,7 @@
                                     <include>commons-codec:commons-codec</include>
                                     <include>commons-logging:commons-logging</include>
                                     <include>com.google.code.gson:gson</include>
-                                    <include>org.codehaus.jackson:jackson-core-asl</include>
                                     <include>com.amazonaws:aws-java-sdk</include>
-                                    <include>org.apache.httpcomponents:httpclient</include>
-                                    <include>org.apache.httpcomponents:httpcore</include>
                                     <include>org.codehaus.jackson:jackson-mapper-asl</include>
                                     <include>commons-httpclient:commons-httpclient</include>
                                 </includes>
