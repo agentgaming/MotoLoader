@@ -1,13 +1,16 @@
-package com.mike724.networkapi;
+package com.mike724.com.mike724.examples;
+
 
 import com.google.common.collect.Multimap;
+import com.mike724.networkapi.DataStorage;
+import com.mike724.networkapi.NetworkPlayer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Main {
-    public static void main(String [] args) throws Exception {
+public class DataStorageExample {
+    public static void main(String[] args) throws Exception {
         long start = System.currentTimeMillis();
 
         DataStorage ds = new DataStorage("jxBkqvpe0seZhgfavRqB","RXaCcuuQcIUFZuVZik9K","nXWvOgfgRJKBbbzowle1");
