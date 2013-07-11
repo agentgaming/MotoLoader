@@ -22,16 +22,16 @@ public class HTTPUtils {
         con.setDoInput(true);
         con.setInstanceFollowRedirects(false);
         con.setRequestMethod("POST");
-        con.setRequestProperty("Accept-Encoding","gzip, deflate");
+        con.setRequestProperty("Accept-Encoding", "gzip, deflate");
         con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
         con.setRequestProperty("Content-Length", "" + Integer.toString(params.getBytes().length));
         con.setUseCaches(false);
-        con.setRequestProperty ("Authorization", "Basic " + Base64.encodeBase64String((username + ":" + password).getBytes()));
+        con.setRequestProperty("Authorization", "Basic " + Base64.encodeBase64String((username + ":" + password).getBytes()).replaceAll("\n", ""));
         DataOutputStream wr = new DataOutputStream(con.getOutputStream());
         wr.writeBytes(params);
         wr.flush();
         wr.close();
-        String out =  IOUtils.toString(con.getInputStream());
+        String out = IOUtils.toString(con.getInputStream());
         con.disconnect();
         return out;
     }

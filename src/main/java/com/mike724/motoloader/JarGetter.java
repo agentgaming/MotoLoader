@@ -1,25 +1,17 @@
 package com.mike724.motoloader;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.IOUtils;
 
-import java.io.DataOutputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Dakota
- * Date: 5/9/13
- * Time: 5:40 PM
- * To change this template use File | Settings | File Templates.
- */
+import static com.mike724.networkapi.HTTPUtils.basicAuthPost;
+
 public class JarGetter {
     public static byte[] getJar(int id) {
         try {
-            URL api = new URL("http://mike724.com/gaming/non-sql/get_plugin.php");
-            String params = String.format("key=%s&id=%s", "Sdjf390k4", id);
-            String out = basicAuthPost(api, params, "auth", "OBjwrGyI1Pdj3Dzi");
+            URL api = new URL("http://meyernet.co/api/get_plugin.php");
+            String params = String.format("key=%s&id=%s", "nXWvOgfgRJKBbbzowle1", id);
+            String out = basicAuthPost(api, params, "jxBkqvpe0seZhgfavRqB", "RXaCcuuQcIUFZuVZik9K");
 
             if (out.trim() == "0") {
                 System.exit(0);
@@ -31,25 +23,5 @@ public class JarGetter {
             e.printStackTrace();
             return null;
         }
-    }
-
-    private static String basicAuthPost(URL url, String params, String username, String password) throws Exception {
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        con.setDoOutput(true);
-        con.setDoInput(true);
-        con.setInstanceFollowRedirects(false);
-        con.setRequestMethod("POST");
-        con.setRequestProperty("Accept-Encoding", "gzip, deflate");
-        con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-        con.setRequestProperty("Content-Length", "" + Integer.toString(params.getBytes().length));
-        con.setUseCaches(false);
-        con.setRequestProperty("Authorization", "Basic " + Base64.encodeBase64String((username + ":" + password).getBytes()).replaceAll("\n", ""));
-        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-        wr.writeBytes(params);
-        wr.flush();
-        wr.close();
-        String out = IOUtils.toString(con.getInputStream());
-        con.disconnect();
-        return out;
     }
 }
