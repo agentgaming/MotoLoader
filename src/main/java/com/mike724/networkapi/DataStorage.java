@@ -4,6 +4,16 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.PropertiesCredentials;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.model.*;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
+import com.amazonaws.services.dynamodbv2.model.Condition;
+import com.amazonaws.services.dynamodbv2.model.KeysAndAttributes;
+import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
+import com.amazonaws.services.dynamodbv2.model.PutItemResult;
+import com.amazonaws.services.dynamodbv2.model.QueryRequest;
+import com.amazonaws.services.dynamodbv2.model.QueryResult;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 
 import java.io.ByteArrayInputStream;
@@ -78,14 +88,54 @@ public class DataStorage {
         PutItemResult putItemResult = db.putItem(putItemRequest);
     }
 
-    public Object[] getObjects(HashMap<Class,String> objectMap) {
-        return null;
+    public Multimap<String,Object> getObjects(Class c, String... ids) {
+        Map<String,KeysAndAttributes> items = new HashMap<String,KeysAndAttributes>();
+        ArrayList<Map<String, AttributeValue>> keys = new ArrayList<Map<String, AttributeValue>>();
+        for(String s : ids) {
+            String key = c.getName();
+            String range = s;
+
+            HashMap<String, AttributeValue> data = new HashMap<String, AttributeValue>();
+            data.put("object_class", new AttributeValue().withS(key));
+            data.put("object_id", new AttributeValue().withS(range));
+            keys.add(data);
+        }
+        items.put(TABLE_NAME, new KeysAndAttributes().withKeys(keys));
+        BatchGetItemRequest bgir = new BatchGetItemRequest().withRequestItems(items);
+        BatchGetItemResult result = db.batchGetItem(bgir);
+
+        if(result.getResponses().get(TABLE_NAME).size() < 1) return null;
+
+        Multimap<String,Object> objs = ArrayListMultimap.create();
+
+        for(Map<String, AttributeValue> i : result.getResponses().get(TABLE_NAME)) {
+            String id = i.get("object_id").getS();
+            objs.put(id,gson.fromJson(i.get("object_data").getS(),c));
+        }
+
+        return objs;
     }
 
     public void writeObjects(HashMap<Object,String> objectMap) {
+        HashMap<String,List<WriteRequest>> reqItems = new HashMap<String,List<WriteRequest>>();
+        ArrayList<WriteRequest> items = new ArrayList<WriteRequest>();
+        for(Object o : objectMap.keySet()) {
+            Map<String, AttributeValue> item = new HashMap<String, AttributeValue>();
+            item.put("object_class", new AttributeValue(o.getClass().getName()));
+            item.put("object_id",new AttributeValue(objectMap.get(o)));
+            item.put("object_data",new AttributeValue(gson.toJson(o)));
+            PutRequest pr = new PutRequest().withItem(item);
+            WriteRequest wr = new WriteRequest().withPutRequest(pr);
+            items.add(wr);
+        }
+
+        reqItems.put(TABLE_NAME,items);
+
+        BatchWriteItemRequest bwir = new BatchWriteItemRequest().withRequestItems(reqItems);
+        BatchWriteItemResult result = db.batchWriteItem(bwir);
     }
 
-    public List<Object> getObjectsByClass(Class c) {
+    public HashMap<String,Object> getObjectsByClass(Class c) {
         Condition hashKeyCondition = new Condition()
                 .withComparisonOperator(ComparisonOperator.EQ.toString())
                 .withAttributeValueList(new AttributeValue(c.getName()));
@@ -95,7 +145,7 @@ public class DataStorage {
 
         QueryRequest request = new QueryRequest()
                 .withTableName(TABLE_NAME)
-                .withAttributesToGet("object_data")
+                .withAttributesToGet("object_data", "object_id")
                 .withKeyConditions(keyConditions);
 
         QueryResult result = db.query(request);
@@ -104,16 +154,16 @@ public class DataStorage {
 
         String objectData = result.getItems().get(0).get("object_data").getS();
 
-        ArrayList<Object> objs = new ArrayList<Object>();
+        HashMap<String,Object> objs = new HashMap<String,Object>();
 
         for(Map<String, AttributeValue> i : result.getItems()) {
-            objs.add(gson.fromJson(i.get("object_data").getS(),c));
+            objs.put(i.get("object_id").getS(), gson.fromJson(i.get("object_data").getS(), c));
         }
 
         return objs;
     }
 
-    public List<Object> getObjectsByClass(Class c, Integer limit) {
+    public HashMap<String,Object> getObjectsByClass(Class c, Integer limit) {
         Condition hashKeyCondition = new Condition()
                 .withComparisonOperator(ComparisonOperator.EQ.toString())
                 .withAttributeValueList(new AttributeValue(c.getName()));
@@ -123,7 +173,7 @@ public class DataStorage {
 
         QueryRequest request = new QueryRequest()
                 .withTableName(TABLE_NAME)
-                .withAttributesToGet("object_data")
+                .withAttributesToGet("object_data","object_id")
                 .withKeyConditions(keyConditions)
                 .withLimit(limit);
 
@@ -133,10 +183,10 @@ public class DataStorage {
 
         String objectData = result.getItems().get(0).get("object_data").getS();
 
-        ArrayList<Object> objs = new ArrayList<Object>();
+        HashMap<String,Object> objs = new HashMap<String,Object>();
 
         for(Map<String, AttributeValue> i : result.getItems()) {
-            objs.add(gson.fromJson(i.get("object_data").getS(),c));
+            objs.put(i.get("object_id").getS(), gson.fromJson(i.get("object_data").getS(), c));
         }
 
         return objs;

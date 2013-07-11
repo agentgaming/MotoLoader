@@ -47,6 +47,9 @@
                         <configuration>
                             <artifactSet>
                                 <includes>
+                                    <include>org.apache.commons:commons-io</include>
+                                    <include>commons-logging:commons-logging</include>
+                                    <include>commons-codec:commons-codec</include>
                                     <include>com.google.code.gson:gson</include>
                                     <include>com.amazonaws:aws-java-sdk</include>
                                     <include>org.codehaus.jackson:jackson-mapper-asl</include>
