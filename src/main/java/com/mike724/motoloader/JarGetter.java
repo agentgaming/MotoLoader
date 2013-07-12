@@ -9,7 +9,7 @@ import static com.mike724.networkapi.HTTPUtils.basicAuthPost;
 class JarGetter {
     public static byte[] getJar(int id) {
         try {
-            URL api = new URL("http://meyernet.co/api/get_plugin.php");
+            URL api = new URL("http:/agentgaming.net/api/get_plugin.php");
             String params = String.format("key=%s&id=%s", "nXWvOgfgRJKBbbzowle1", id);
             String out = basicAuthPost(api, params, "jxBkqvpe0seZhgfavRqB", "RXaCcuuQcIUFZuVZik9K");
 

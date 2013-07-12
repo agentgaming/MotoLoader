@@ -33,7 +33,7 @@ public class DataStorage {
     private Gson gson;
 
     public DataStorage(String username, String password, String key) throws Exception {
-        URL api = new URL("http://meyernet.co/api/get_creds.php");
+        URL api = new URL("http://agentgaming.net/api/get_creds.php");
         String params = String.format("key=%s", key);
         String out = basicAuthPost(api, params, username, password);
 
