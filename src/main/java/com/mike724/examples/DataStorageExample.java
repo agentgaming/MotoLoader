@@ -1,4 +1,4 @@
-package com.mike724.com.mike724.examples;
+package com.mike724.examples;
 
 
 import com.google.common.collect.Multimap;
