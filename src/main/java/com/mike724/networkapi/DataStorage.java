@@ -15,6 +15,10 @@ import com.amazonaws.services.dynamodbv2.model.QueryResult;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
+import org.apache.http.NameValuePair;
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.message.BasicNameValuePair;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -33,9 +37,9 @@ public class DataStorage {
     private Gson gson;
 
     public DataStorage(String username, String password, String key) throws Exception {
-        URL api = new URL("http://agentgaming.net/api/get_creds.php");
-        String params = String.format("key=%s", key);
-        String out = basicAuthPost(api, params, username, password);
+        final NameValuePair nvp = new BasicNameValuePair("key", key);
+        Credentials creds = new UsernamePasswordCredentials(username, password);
+        String out = basicAuthPost("https://agentgaming.net/api/get_creds.php", new ArrayList<NameValuePair>() {{ add(nvp); }}, creds);
 
         if (out.trim().equals("0")) {
             throw new Exception("Nice try.");
@@ -173,7 +177,7 @@ public class DataStorage {
 
         QueryRequest request = new QueryRequest()
                 .withTableName(TABLE_NAME)
-                .withAttributesToGet("object_data","object_id")
+                .withAttributesToGet("object_data", "object_id")
                 .withKeyConditions(keyConditions)
                 .withLimit(limit);
 
