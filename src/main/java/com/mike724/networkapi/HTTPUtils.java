@@ -31,47 +31,14 @@ public class HTTPUtils {
      * @return the HTTP response
      */
     public static String basicAuthPost(String url, List<NameValuePair> params, Credentials creds) throws Exception {
-        KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
-        SSLSocketFactory socketFactory = new SSLSocketFactory(ks);
-        Scheme sch = new Scheme("https", 443, socketFactory);
-
         HttpClient client = new DefaultHttpClient();
-        client.getConnectionManager().getSchemeRegistry().register(sch);
         HttpPost post = new HttpPost(url);
         Header authHeader = new BasicScheme().authenticate(creds, post, new BasicHttpContext());
         post.addHeader(authHeader);
         post.setEntity(new UrlEncodedFormEntity(params, "utf-8"));
-        HttpResponse resp = client.execute(new HttpHost("172.245.28.35"), post);
+        HttpResponse resp = client.execute(post);
         String respString = EntityUtils.toString(resp.getEntity()).trim();
         System.out.println(respString);
         return respString;
-    }
-
-    /**
-     * @param url  the url of the HTTP server
-     * @param params the post parameters in url format
-     * @param username the HTTP authorization username
-     * @param password the HTTP authorization password
-     * @return the HTTP response
-     * @see String
-     */
-    public static String basicAuthPost(URL url, String params, String username, String password) throws Exception {
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        con.setDoOutput(true);
-        con.setDoInput(true);
-        con.setInstanceFollowRedirects(false);
-        con.setRequestMethod("POST");
-        con.setRequestProperty("Accept-Encoding", "gzip, deflate");
-        con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-        con.setRequestProperty("Content-Length", "" + Integer.toString(params.getBytes().length));
-        con.setUseCaches(false);
-        con.setRequestProperty("Authorization", "Basic " + Base64.encodeBase64String((username + ":" + password).getBytes()).replaceAll("\n", ""));
-        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-        wr.writeBytes(params);
-        wr.flush();
-        wr.close();
-        String out = IOUtils.toString(con.getInputStream());
-        con.disconnect();
-        return out;
     }
 }

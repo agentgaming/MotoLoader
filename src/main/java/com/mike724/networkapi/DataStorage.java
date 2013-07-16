@@ -37,8 +37,11 @@ public class DataStorage {
     private Gson gson;
 
     public DataStorage(String username, String password, String key) throws Exception {
+        //post data
         final NameValuePair nvp = new BasicNameValuePair("key", key);
+        //basic auth
         Credentials creds = new UsernamePasswordCredentials(username, password);
+        //server response text
         String out = basicAuthPost("https://agentgaming.net/api/get_creds.php", new ArrayList<NameValuePair>() {{ add(nvp); }}, creds);
 
         if (out.trim().equals("0")) {
