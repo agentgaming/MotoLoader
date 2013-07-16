@@ -1,10 +1,11 @@
 package com.mike724.motoloader;
 
+import org.apache.commons.codec.binary.Base64;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.commons.codec.binary.Base64;
-
+@SuppressWarnings("unused")
 class Security {
     public static String encrypt(String input, String key) {
         byte[] crypted = null;

@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.scoreboard.*;
 
+@SuppressWarnings("unused")
 public class NetworkPlayer {
     private String player;
     private Integer tokens;
@@ -24,7 +25,7 @@ public class NetworkPlayer {
     }
 
     public NetworkPlayer(String player) {
-        this(player, 0, 0, false, false, NetworkRank.USER,System.currentTimeMillis());
+        this(player, 0, 0, false, false, NetworkRank.USER, System.currentTimeMillis());
     }
 
     public Integer getTokens() {

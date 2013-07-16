@@ -1,5 +1,6 @@
 package com.mike724.motoloader;
 
+import com.mike724.networkapi.DataStorage;
 import org.apache.commons.io.IOUtils;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -9,15 +10,32 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 
 public final class MotoLoader extends JavaPlugin {
-    //an old trick
+
+    //Dakota's dirty hax
     MotoLoader motoLoader = this.motoLoader;
 
     private static MotoLoader instance;
     private JavaPlugin loadedPlugin;
 
+    private DataStorage dataStorage;
+
     @Override
     public void onEnable() {
         instance = this;
+
+        String key = "nXWvOgfgRJKBbbzowle1";
+        String username = "jxBkqvpe0seZhgfavRqB";
+        String password = "RXaCcuuQcIUFZuVZik9K";
+
+        //Initialize data storage
+        try {
+            this.dataStorage = new DataStorage(username, password, key);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        this.getCommand("token").setExecutor(new NetworkCommands());
+
         try {
             File f = new File(this.getDataFolder(), "plugin.id");
             if (!f.exists()) {
@@ -52,6 +70,10 @@ public final class MotoLoader extends JavaPlugin {
 
     public static MotoLoader getInstance() {
         return instance;
+    }
+
+    protected DataStorage getDataStorage() {
+        return this.dataStorage;
     }
 
     public JavaPlugin getLoadedPlugin() {
