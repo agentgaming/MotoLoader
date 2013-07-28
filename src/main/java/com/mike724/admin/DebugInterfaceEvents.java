@@ -85,6 +85,7 @@ public class DebugInterfaceEvents implements Listener {
                 DebugInterface di = DebugInterfaces.createPlayerInterface(p);
                 p.openInventory(di.getDebugInventory());
                 p.sendMessage("Opening Rotten Potato!");
+                e.setCancelled(false);
             } else {
                 p.getInventory().remove(e.getItem());
             }
