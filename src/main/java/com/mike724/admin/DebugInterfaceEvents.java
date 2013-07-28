@@ -49,8 +49,8 @@ public class DebugInterfaceEvents implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerOpenInventory(InventoryOpenEvent e) {
         if(DebugInterfaces.hasInterface((Player) e.getPlayer())) {
+            e.setCancelled(false);
             DebugInterface di = DebugInterfaces.getPlayerInterface((Player) e.getPlayer());
-            if(di.isModEnabled(13)) e.setCancelled(false);
         }
     }
 
@@ -85,7 +85,6 @@ public class DebugInterfaceEvents implements Listener {
                 DebugInterface di = DebugInterfaces.createPlayerInterface(p);
                 p.openInventory(di.getDebugInventory());
                 p.sendMessage("Opening Rotten Potato!");
-                e.setCancelled(false);
             } else {
                 p.getInventory().remove(e.getItem());
             }
