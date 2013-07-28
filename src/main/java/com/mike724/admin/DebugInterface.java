@@ -38,7 +38,13 @@ public class DebugInterface {
         inv = MotoLoader.getInstance().getServer().createInventory(p, 36, "Rotten Potato - " + p.getName());
 
         //Add all the base mods
-        for(int i = 0; i < mods.length; i++) inv.setItem(i, menuItem(blocks[i],mods[i],desc[i],canEnable(i)));
+        for(int i = 0; i < mods.length; i++) {
+            if(i == 13) {
+                inv.setItem(i, menuItem(blocks[i],mods[i],desc[i],canEnable(i),true));
+            } else {
+                inv.setItem(i, menuItem(blocks[i],mods[i],desc[i],canEnable(i)));
+            }
+        }
 
         //Add player spoofing
         inv.setItem(27, menuItem(397,"Get Head","Get a head to rename",false));

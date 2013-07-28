@@ -49,8 +49,8 @@ public class DebugInterfaceEvents implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerOpenInventory(InventoryOpenEvent e) {
         if(DebugInterfaces.hasInterface((Player) e.getPlayer())) {
-            e.setCancelled(false);
             DebugInterface di = DebugInterfaces.getPlayerInterface((Player) e.getPlayer());
+            if(di.isModEnabled(13)) e.setCancelled(false);
         }
     }
 
