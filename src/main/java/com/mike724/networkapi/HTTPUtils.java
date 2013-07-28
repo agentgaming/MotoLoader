@@ -30,7 +30,6 @@ public class HTTPUtils {
         post.setEntity(new UrlEncodedFormEntity(params, "utf-8"));
         HttpResponse resp = client.execute(post);
         String respString = EntityUtils.toString(resp.getEntity()).trim();
-        System.out.println(respString);
         return respString;
     }
 }

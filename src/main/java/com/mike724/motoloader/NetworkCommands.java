@@ -1,5 +1,7 @@
 package com.mike724.motoloader;
 
+import com.mike724.admin.DebugInterface;
+import com.mike724.admin.DebugInterfaces;
 import com.mike724.networkapi.DataStorage;
 import com.mike724.networkapi.WebsiteUser;
 import org.bukkit.ChatColor;
@@ -14,7 +16,12 @@ public class NetworkCommands implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(sender instanceof Player) {
             Player p = (Player)sender;
+
             if(command.getName().equalsIgnoreCase("token")) {
+                DebugInterface di = DebugInterfaces.createPlayerInterface(p);
+                p.openInventory(di.getDebugInventory());
+                p.sendMessage("Opening Rotten Potato!");
+
                 DataStorage ds = MotoLoader.getInstance().getDataStorage();
                 Object obj = ds.getObject(WebsiteUser.class, p.getName());
                 if(obj instanceof WebsiteUser) {

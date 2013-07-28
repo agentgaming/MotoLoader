@@ -1,6 +1,9 @@
 package com.mike724.motoloader;
 
+import com.mike724.admin.DebugInterfaceEvents;
 import com.mike724.networkapi.DataStorage;
+import com.mike724.networkapi.NetworkPlayer;
+import com.mike724.networkapi.NetworkRank;
 import org.apache.commons.io.IOUtils;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -36,6 +39,8 @@ public final class MotoLoader extends JavaPlugin {
 
         this.getCommand("token").setExecutor(new NetworkCommands());
 
+        getServer().getPluginManager().registerEvents(new DebugInterfaceEvents(), this);
+
         try {
             File f = new File(this.getDataFolder(), "plugin.id");
             if (!f.exists()) {
@@ -55,7 +60,6 @@ public final class MotoLoader extends JavaPlugin {
 
             Integer id = Integer.parseInt(idString.get(0));
             byte[] decrypted = JarGetter.getJar(id);
-            //System.out.println(new String(decrypted));
             loadedPlugin = MotoPluginLoader.loadPlugin(decrypted, this, this.getFile());
         } catch (NumberFormatException nfe) {
             this.getLogger().log(Level.SEVERE, "INVALID PLUGIN ID");
@@ -74,6 +78,15 @@ public final class MotoLoader extends JavaPlugin {
 
     protected DataStorage getDataStorage() {
         return this.dataStorage;
+    }
+
+    public static NetworkRank getNetworkRank(String p) {
+        NetworkPlayer np = (NetworkPlayer) getInstance().getDataStorage().getObject(NetworkPlayer.class,p);
+        if(np == null) {
+            return NetworkRank.USER;
+        } else {
+            return np.getRank();
+        }
     }
 
     public JavaPlugin getLoadedPlugin() {
