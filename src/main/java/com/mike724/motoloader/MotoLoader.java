@@ -81,12 +81,7 @@ public final class MotoLoader extends JavaPlugin {
     }
 
     public static NetworkRank getNetworkRank(String p) {
-        NetworkPlayer np = (NetworkPlayer) getInstance().getDataStorage().getObject(NetworkPlayer.class,p);
-        if(np == null) {
-            return NetworkRank.USER;
-        } else {
-            return np.getRank();
-        }
+        return NetworkPlayer.getNetworkPlayer(getInstance().getDataStorage(),p).getRank();
     }
 
     public JavaPlugin getLoadedPlugin() {

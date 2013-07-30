@@ -88,4 +88,13 @@ public class NetworkPlayer {
         cash.setScore(this.getCash());
         Bukkit.getPlayer(this.getPlayer()).setScoreboard(board);
     }
+
+    public static NetworkPlayer getNetworkPlayer(DataStorage ds, String player) {
+        Object np = ds.getObject(NetworkPlayer.class, player);
+        if(np == null) {
+            np = new NetworkPlayer(player);
+            ds.writeObject(np,player);
+        }
+        return (NetworkPlayer) np;
+    }
 }
