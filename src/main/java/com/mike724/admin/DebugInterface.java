@@ -29,7 +29,7 @@ public class DebugInterface {
     private String[] mods = {"Fly", "God", "Demigod", "Super Move", "Tele-click", "Global Debug", "Give 10 levels", "Speed", "Strength", "Vanish", "Feed", "Heal", "Clear Effects", "Inventory Override", "Block Place/Break Override"};
 
     private String[] desc = {"Allows you to fly", "Makes you invincible, doesn't show hits", "Makes you invincible, shows hits"
-            , "Allows you to move in any direction quickly", "Teleport where you click", "Allows you to move at any velocity",
+            , "Allows you to move in any direction quickly", "Teleport where you click", "Enables debug options for other network plugins",
             "Gain 10 levels of experience", "Gives you speed effect", "Gives you Strength Effect", "Makes you completely invisible",
             "Replenishes your Hunger", "Heals your health", "Clears any potion effects on you", "Allows you to open any inventory", "Allows you to break/place any block"};
 
