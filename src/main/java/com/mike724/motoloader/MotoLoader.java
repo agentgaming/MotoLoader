@@ -49,7 +49,6 @@ public final class MotoLoader extends JavaPlugin {
                     if (!pluginIds.contains(i)) pluginIds.add(i);
                 } catch (NumberFormatException nfe) {
                     this.getLogger().log(Level.SEVERE, "INVALID PLUGIN ID: " + s);
-                    continue;
                 }
             }
 
