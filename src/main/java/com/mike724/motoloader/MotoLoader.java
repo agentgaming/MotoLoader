@@ -1,15 +1,12 @@
 package com.mike724.motoloader;
 
-import com.mike724.admin.DebugInterfaceEvents;
-import com.mike724.networkapi.DataStorage;
-import com.mike724.networkapi.NetworkPlayer;
-import com.mike724.networkapi.NetworkRank;
 import org.apache.commons.io.IOUtils;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.logging.Level;
 
 public final class MotoLoader extends JavaPlugin {
@@ -18,29 +15,18 @@ public final class MotoLoader extends JavaPlugin {
     MotoLoader motoLoader = this.motoLoader;
 
     private static MotoLoader instance;
-    private JavaPlugin loadedPlugin;
 
-    private DataStorage dataStorage;
+    private ArrayList<JavaPlugin> loadedPlugins = new ArrayList<>();
+    private Integer[] requiredPlugins = {0, 1, 2};
 
     @Override
     public void onEnable() {
         instance = this;
 
-        String key = "nXWvOgfgRJKBbbzowle1";
-        String username = "jxBkqvpe0seZhgfavRqB";
-        String password = "RXaCcuuQcIUFZuVZik9K";
+        ArrayList<Integer> pluginIds = new ArrayList<>();
+        pluginIds.addAll(Arrays.asList(requiredPlugins));
 
-        //Initialize data storage
-        try {
-            this.dataStorage = new DataStorage(username, password, key);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        this.getCommand("token").setExecutor(new NetworkCommands());
-
-        getServer().getPluginManager().registerEvents(new DebugInterfaceEvents(), this);
-
+        //Get plugins to load
         try {
             File f = new File(this.getDataFolder(), "plugin.id");
             if (!f.exists()) {
@@ -57,14 +43,24 @@ public final class MotoLoader extends JavaPlugin {
                 return;
             }
 
+            for (String s : idString.get(0).split(",")) {
+                try {
+                    Integer i = Integer.parseInt(s);
+                    if (!pluginIds.contains(i)) pluginIds.add(i);
+                } catch (NumberFormatException nfe) {
+                    this.getLogger().log(Level.SEVERE, "INVALID PLUGIN ID: " + s);
+                    continue;
+                }
+            }
 
-            Integer id = Integer.parseInt(idString.get(0));
-            byte[] decrypted = JarGetter.getJar(id);
-            loadedPlugin = MotoPluginLoader.loadPlugin(decrypted, this, this.getFile());
-        } catch (NumberFormatException nfe) {
-            this.getLogger().log(Level.SEVERE, "INVALID PLUGIN ID");
         } catch (Exception e) {
             e.printStackTrace();
+        }
+
+        //Load the plugins
+        for (Integer id : pluginIds) {
+            byte[] decrypted = JarGetter.getJar(id);
+            loadedPlugins.add(MotoPluginLoader.loadPlugin(decrypted, this, this.getFile()));
         }
     }
 
@@ -76,15 +72,7 @@ public final class MotoLoader extends JavaPlugin {
         return instance;
     }
 
-    protected DataStorage getDataStorage() {
-        return this.dataStorage;
-    }
-
-    public static NetworkRank getNetworkRank(String p) {
-        return NetworkPlayer.getNetworkPlayer(getInstance().getDataStorage(),p).getRank();
-    }
-
-    public JavaPlugin getLoadedPlugin() {
-        return loadedPlugin;
+    public ArrayList<JavaPlugin> getLoadedPlugins() {
+        return loadedPlugins;
     }
 }
