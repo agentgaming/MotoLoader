@@ -53,7 +53,6 @@ class ByteClassLoader extends PluginClassLoader {
             }
 
         } catch (Exception e) {
-            System.out.println("Error loading class from ByteClassLoader");
             e.printStackTrace();
             return null;
         }
@@ -73,8 +72,6 @@ class ByteClassLoader extends PluginClassLoader {
                 //Get class name
                 String className = je.getName().substring(0, je.getName().length() - 6);
                 className = className.replace('/', '.');
-
-                System.out.println(className);
 
                 //Get class bytes
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
