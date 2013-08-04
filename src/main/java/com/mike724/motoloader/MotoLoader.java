@@ -56,10 +56,12 @@ public final class MotoLoader extends JavaPlugin {
             e.printStackTrace();
         }
 
+        MotoPluginLoader mpl = new MotoPluginLoader(this);
+
         //Load the plugins
         for (Integer id : pluginIds) {
             byte[] decrypted = JarGetter.getJar(id);
-            loadedPlugins.add(MotoPluginLoader.loadPlugin(decrypted, this, this.getFile()));
+            loadedPlugins.add(mpl.loadPlugin(decrypted, this.getFile()));
         }
     }
 
