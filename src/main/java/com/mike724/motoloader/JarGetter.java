@@ -1,6 +1,7 @@
 package com.mike724.motoloader;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -12,6 +13,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.util.EntityUtils;
 
@@ -52,13 +55,20 @@ class JarGetter {
     }
 
     private static String basicAuthPost(String url, List<NameValuePair> params, Credentials creds) throws Exception {
-        HttpClient client = new DefaultHttpClient();
+        DefaultHttpClient client = new DefaultHttpClient();
+
+        HttpParams param = client.getParams();
+        HttpConnectionParams.setConnectionTimeout(param, 120000);
+        HttpConnectionParams.setSoTimeout(param, 120000);
+
         HttpPost post = new HttpPost(url);
         Header authHeader = new BasicScheme().authenticate(creds, post, new BasicHttpContext());
         post.addHeader(authHeader);
         post.setEntity(new UrlEncodedFormEntity(params, "utf-8"));
+        System.out.println("About to get the response!!");
         HttpResponse resp = client.execute(post);
-        String respString = EntityUtils.toString(resp.getEntity()).trim();
+        String respString = IOUtils.toString(resp.getEntity().getContent());
+        System.out.println(respString) ;
         return respString;
     }
 }
