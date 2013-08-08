@@ -1,5 +1,6 @@
 package com.mike724.motoloader;
 
+import net.minecraft.v1_6_R2.org.bouncycastle.util.encoders.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -33,8 +34,7 @@ class JarGetter {
                 System.exit(0);
             }
 
-            String decrypted = Security.decrypt(out, "s93l-j39sl3902js");
-            return decrypted.getBytes();
+            return Base64.decode(Security.decrypt(out, "s93l-j39sl3902js"));
         } catch (Exception e) {
             e.printStackTrace();
             return null;

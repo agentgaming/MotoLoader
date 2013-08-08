@@ -30,16 +30,4 @@ public class Security {
         }
         return new String(decrypted);
     }
-    private static String padString(String source) {
-        char paddingChar = ' ';
-        int size = 16;
-        int x = source.length() % size;
-        int padLength = size - x;
-
-        for (int i = 0; i < padLength; i++) {
-            source += paddingChar;
-        }
-
-        return source;
-    }
 }
