@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.mike724.motoloader</groupId>
     <artifactId>MotoLoader</artifactId>
-    <version>0.1</version>
+    <version>${env.BUILD_NUMBER}</version>
     <name>MotoLoader</name>
     <url>http://www.mike724.com/</url>
     <repositories>
