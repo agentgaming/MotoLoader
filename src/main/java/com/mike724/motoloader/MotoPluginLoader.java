@@ -23,10 +23,17 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
 class MotoPluginLoader {
+    private ByteClassLoader bcl;
 
-    public static JavaPlugin loadPlugin(byte[] bytes, JavaPlugin parent, File spoofFile) {
+    protected MotoPluginLoader(JavaPlugin parent) {
+        bcl = new ByteClassLoader(parent);
+    }
+
+    protected JavaPlugin loadPlugin(byte[] bytes, File spoofFile) {
         try {
-            ByteClassLoader bcl = new ByteClassLoader(parent, bytes);
+            JavaPlugin parent = bcl.getParentPlugin();
+
+            bcl.loadBytes(bytes);
             PluginDescriptionFile description = getPluginDescription(bytes);
             JavaPlugin result;
 

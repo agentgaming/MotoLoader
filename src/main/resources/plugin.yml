@@ -2,7 +2,3 @@ name: MotoLoader
 authors: [Dakota628, Mike724]
 version: ${version}
 main: com.mike724.motoloader.MotoLoader
-commands:
-  token:
-    description: Gets your account's access token for the website
-    usage: Enter /<command> as a player.
