@@ -1,6 +1,5 @@
 package com.mike724.motoloader;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -35,7 +34,7 @@ class JarGetter {
             }
 
             String decrypted = Security.decrypt(out, "s93l-j39sl3902js");
-            return Base64.decodeBase64(decrypted.getBytes());
+            return decrypted.getBytes();
         } catch (Exception e) {
             e.printStackTrace();
             return null;
