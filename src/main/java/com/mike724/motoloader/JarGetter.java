@@ -7,7 +7,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.auth.BasicScheme;
@@ -16,7 +15,6 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.util.EntityUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,10 +63,8 @@ class JarGetter {
         Header authHeader = new BasicScheme().authenticate(creds, post, new BasicHttpContext());
         post.addHeader(authHeader);
         post.setEntity(new UrlEncodedFormEntity(params, "utf-8"));
-        System.out.println("About to get the response!!");
         HttpResponse resp = client.execute(post);
         String respString = IOUtils.toString(resp.getEntity().getContent());
-        System.out.println(respString) ;
         return respString;
     }
 }
