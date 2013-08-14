@@ -127,9 +127,9 @@
         </dependency>
     </dependencies>
     <distributionManagement>
-        <snapshotRepository>
+        <repository>
             <id>AGNRepo</id>
             <url>https://mike724.com/repo/content/repositories/agentgaming-release</url>
-        </snapshotRepository>
+        </repository>
     </distributionManagement>
 </project>
