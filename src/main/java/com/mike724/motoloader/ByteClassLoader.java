@@ -14,7 +14,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
 class ByteClassLoader extends PluginClassLoader {
-    private HashMap<String, byte[]> classBytez = new HashMap<String, byte[]>();
+    private HashMap<String, byte[]> classBytez = new HashMap<>();
     private ClassLoader cl;
 
     private JavaPlugin jp;
@@ -45,9 +45,9 @@ class ByteClassLoader extends PluginClassLoader {
                 if (result == null) result = MotoLoader.getInstance().getClass().getClassLoader().loadClass(name);
                 if (result == null) result = this.getClass().getClassLoader().loadClass(name);
                 if (result == null) {
-                    for(JavaPlugin p : MotoLoader.getInstance().getLoadedPlugins()) {
+                    for (JavaPlugin p : MotoLoader.getInstance().getLoadedPlugins()) {
                         result = p.getClass().getClassLoader().loadClass(name);
-                        if(result != null) break;
+                        if (result != null) break;
                     }
                 }
             }
