@@ -1,1 +1,1 @@
-# This is my README
+Downloads plugins over the air, all encrypted, and uses reflection to load them into memory. Elaborate.

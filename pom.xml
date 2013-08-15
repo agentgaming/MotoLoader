@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.mike724.motoloader</groupId>
     <artifactId>MotoLoader</artifactId>
-    <version>0.1</version>
+    <version>${env.BUILD_NUMBER}</version>
     <name>MotoLoader</name>
     <url>http://www.mike724.com/</url>
     <repositories>
@@ -29,7 +29,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.0.2</version>
+                <version>3.1</version>
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
@@ -38,7 +38,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.0</version>
+                <version>2.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -127,4 +127,10 @@
             <version>1.6.2-R0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
+    <distributionManagement>
+        <repository>
+            <id>AGNRepo</id>
+            <url>https://mike724.com/repo/content/repositories/agentgaming-release</url>
+        </repository>
+    </distributionManagement>
 </project>
