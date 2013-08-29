@@ -43,35 +43,49 @@ class ByteClassLoader extends PluginClassLoader {
     }
 
     @Override
-    public Class findClass(String name) throws ClassNotFoundException {
+    public Class findClass(String name) {
         Class result = null;
-        try {
-            if (classBytez.containsKey(name)) {
-                result = defineClass(name, classBytez.get(name), 0, classBytez.get(name).length, (CodeSource) null);
-            }
-            if (result == null) result = cl.loadClass(name);
-            if (result == null) result = super.loadClass(name, true);
-            if (result == null) result = getSystemClassLoader().loadClass(name);
-            if (result == null) result = MotoLoader.getInstance().getClass().getClassLoader().loadClass(name);
-            if (result == null) result = this.getClass().getClassLoader().loadClass(name);
-            if(result == null) {
-                for(ByteClassLoader bcl : MotoLoader.getInstance().getByteClassLoaders()) {
-                    if(bcl == this) break;
-                    result = bcl.findClass(name);
-                    if(result != null) break;
-                }
-            }
-            if (result == null) {
-                for (JavaPlugin p : MotoLoader.getInstance().getLoadedPlugins()) {
-                    result = p.getClass().getClassLoader().loadClass(name);
-                    if (result != null) break;
-                }
-            }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+        if (classBytez.containsKey(name)) {
+            result = defineClass(name, classBytez.get(name), 0, classBytez.get(name).length, (CodeSource) null);
         }
+        try {
+            if (result == null) result = cl.loadClass(name);
+        } catch (Exception e) {
+        }
+        try {
+            if (result == null) result = super.loadClass(name, true);
+        } catch (Exception e) {
+        }
+        try {
+            if (result == null) result = getSystemClassLoader().loadClass(name);
+        } catch (Exception e) {
+        }
+        try {
+            if (result == null) result = MotoLoader.getInstance().getClass().getClassLoader().loadClass(name);
+        } catch (Exception e) {
+        }
+        try {
+            if (result == null) result = this.getClass().getClassLoader().loadClass(name);
+        } catch (Exception e) {
+        }
+        if (result == null) {
+            for (ByteClassLoader bcl : MotoLoader.getInstance().getByteClassLoaders()) {
+                if (bcl == this) break;
+                result = bcl.findClass(name);
+                if (result != null) break;
+            }
+        }
+        if (result == null) {
+            for (JavaPlugin p : MotoLoader.getInstance().getLoadedPlugins()) {
+                try {
+                    result = p.getClass().getClassLoader().loadClass(name);
+                } catch (Exception e) {
+                }
+                if (result != null) break;
+            }
+        }
+
         return result;
     }
 
