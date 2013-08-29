@@ -1,13 +1,12 @@
 package com.mike724.motoloader;
 
+import org.apache.commons.io.IOUtils;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
 import org.bukkit.plugin.java.PluginClassLoader;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.CodeSource;
 import java.util.HashMap;
@@ -21,10 +20,13 @@ class ByteClassLoader extends PluginClassLoader {
 
     private JavaPlugin jp;
 
-    public ByteClassLoader(JavaPlugin jp) {
+    private String resDir;
+
+    public ByteClassLoader(JavaPlugin jp, String resName) {
         super((JavaPluginLoader) jp.getPluginLoader(), new URL[]{}, ByteClassLoader.class.getClassLoader());
         this.jp = jp;
         this.cl = jp.getClass().getClassLoader();
+        this.resDir = jp.getDataFolder() + File.pathSeparator + "resources" + File.pathSeparator + name;
     }
 
     private void addClass(String name, byte[] data) {
@@ -35,6 +37,7 @@ class ByteClassLoader extends PluginClassLoader {
         resourceBytez.put(name, data);
     }
 
+    @Override
     public Class loadClass(String name) throws ClassNotFoundException {
         return findClass(name);
     }
@@ -67,12 +70,29 @@ class ByteClassLoader extends PluginClassLoader {
     }
 
     @Override
+    public URL getResource(String name) {
+        InputStream is = getResourceAsStream(name);
+        if(is == null) return null;
+        String path = resDir + File.pathSeparator + name.replace('/', File.pathSeparatorChar);
+        try {
+            IOUtils.copy(is, new FileOutputStream(path));
+        } catch (IOException e) {
+            return null;
+        }
+        try {
+            return new File(path).toURI().toURL();
+        } catch (MalformedURLException e) {
+            return null;
+        }
+    }
+
+    @Override
     public InputStream getResourceAsStream(String name) {
         if(!resourceBytez.containsKey(name)) return null;
         return new ByteArrayInputStream(resourceBytez.get(name));
     }
 
-    protected void loadBytes(byte[] jarBytes) {
+    protected void loadBytes(byte[] jarBytes, String name) {
         try {
             ByteArrayInputStream bis = new ByteArrayInputStream(jarBytes);
             JarInputStream jis = new JarInputStream(bis);

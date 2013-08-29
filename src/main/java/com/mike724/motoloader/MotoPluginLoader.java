@@ -23,18 +23,23 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
 class MotoPluginLoader {
-    private ByteClassLoader bcl;
+    //private ByteClassLoader bcl;
+    private JavaPlugin parent;
 
     protected MotoPluginLoader(JavaPlugin parent) {
-        bcl = new ByteClassLoader(parent);
+        this.parent = parent;
+        //bcl = new ByteClassLoader(parent);
     }
 
     protected JavaPlugin loadPlugin(byte[] bytes, File spoofFile) {
         try {
-            JavaPlugin parent = bcl.getParentPlugin();
+            //JavaPlugin parent = bcl.getParentPlugin();
 
-            bcl.loadBytes(bytes);
             PluginDescriptionFile description = getPluginDescription(bytes);
+
+            ByteClassLoader bcl = new ByteClassLoader(parent, description.getName());
+            bcl.loadBytes(bytes, description.getName());
+
             JavaPlugin result;
 
             Class jarClass = Class.forName(description.getMain(), true, bcl);
