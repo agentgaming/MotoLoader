@@ -26,7 +26,7 @@ class ByteClassLoader extends PluginClassLoader {
         super((JavaPluginLoader) jp.getPluginLoader(), new URL[]{}, ByteClassLoader.class.getClassLoader());
         this.jp = jp;
         this.cl = jp.getClass().getClassLoader();
-        this.resDir = jp.getDataFolder() + File.pathSeparator + "resources" + File.pathSeparator + name;
+        this.resDir = jp.getDataFolder() + File.pathSeparator + "resources" + File.pathSeparator + resName;
     }
 
     private void addClass(String name, byte[] data) {
