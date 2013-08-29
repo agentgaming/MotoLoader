@@ -39,6 +39,7 @@ class ByteClassLoader extends PluginClassLoader {
         return findClass(name);
     }
 
+    @Override
     public Class findClass(String name) throws ClassNotFoundException {
         Class result = null;
         try {
