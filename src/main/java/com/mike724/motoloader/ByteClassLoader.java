@@ -20,13 +20,13 @@ class ByteClassLoader extends PluginClassLoader {
 
     private JavaPlugin jp;
 
-    private String resDir;
+    private File resDir;
 
     public ByteClassLoader(JavaPlugin jp, String resName) {
         super((JavaPluginLoader) jp.getPluginLoader(), new URL[]{}, ByteClassLoader.class.getClassLoader());
         this.jp = jp;
         this.cl = jp.getClass().getClassLoader();
-        this.resDir = jp.getDataFolder() + File.pathSeparator + "resources" + File.pathSeparator + resName;
+        this.resDir = new File(jp.getDataFolder().getPath() + "/resources/" + resName);
     }
 
     private void addClass(String name, byte[] data) {
@@ -73,7 +73,7 @@ class ByteClassLoader extends PluginClassLoader {
     public URL getResource(String name) {
         InputStream is = getResourceAsStream(name);
         if(is == null) return null;
-        String path = resDir + File.pathSeparator + name.replace('/', File.pathSeparatorChar);
+        String path = resDir.getPath() + File.pathSeparator + name.replace("/", File.pathSeparator);
         try {
             IOUtils.copy(is, new FileOutputStream(path));
         } catch (IOException e) {
