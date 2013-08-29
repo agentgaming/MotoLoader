@@ -7,6 +7,7 @@ import org.bukkit.plugin.java.PluginClassLoader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.security.CodeSource;
 import java.util.HashMap;
@@ -15,6 +16,7 @@ import java.util.jar.JarInputStream;
 
 class ByteClassLoader extends PluginClassLoader {
     private HashMap<String, byte[]> classBytez = new HashMap<>();
+    private HashMap<String, byte[]> resourceBytez = new HashMap<>();
     private ClassLoader cl;
 
     private JavaPlugin jp;
@@ -27,6 +29,10 @@ class ByteClassLoader extends PluginClassLoader {
 
     private void addClass(String name, byte[] data) {
         classBytez.put(name, data);
+    }
+
+    private void addResource(String name, byte[] data) {
+        resourceBytez.put(name, data);
     }
 
     public Class loadClass(String name) throws ClassNotFoundException {
@@ -59,6 +65,11 @@ class ByteClassLoader extends PluginClassLoader {
         return result;
     }
 
+    @Override
+    public InputStream getResourceAsStream(String name) {
+        if(!resourceBytez.containsKey(name)) return null;
+        return new ByteArrayInputStream(resourceBytez.get(name));
+    }
 
     protected void loadBytes(byte[] jarBytes) {
         try {
@@ -67,11 +78,7 @@ class ByteClassLoader extends PluginClassLoader {
 
             JarEntry je;
             while ((je = jis.getNextJarEntry()) != null) {
-                if (je.isDirectory() || !je.getName().endsWith(".class")) continue;
-
-                //Get class name
-                String className = je.getName().substring(0, je.getName().length() - 6);
-                className = className.replace('/', '.');
+                if (je.isDirectory()) continue;
 
                 //Get class bytes
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -84,7 +91,15 @@ class ByteClassLoader extends PluginClassLoader {
 
                 byte[] classBytes = bos.toByteArray();
 
-                addClass(className, classBytes);
+                if(!je.getName().endsWith(".class")) {
+                    addResource(je.getName(), classBytes);
+                } else {
+                    //Get class name
+                    String className = je.getName().substring(0, je.getName().length() - 6);
+                    className = className.replace('/', '.');
+
+                    addClass(className, classBytes);
+                }
             }
             jis.close();
             bis.close();
