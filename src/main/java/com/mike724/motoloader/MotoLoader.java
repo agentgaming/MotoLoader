@@ -17,6 +17,7 @@ public final class MotoLoader extends JavaPlugin {
     private static MotoLoader instance;
 
     private ArrayList<JavaPlugin> loadedPlugins = new ArrayList<>();
+    private ArrayList<ByteClassLoader> bcls = new ArrayList<>();
     private Integer[] requiredPlugins = {0, 1};
 
     @Override
@@ -63,6 +64,7 @@ public final class MotoLoader extends JavaPlugin {
             System.out.println("Getting plugin " + id);
             byte[] decrypted = JarGetter.getJar(id);
             loadedPlugins.add(mpl.loadPlugin(decrypted, this.getFile()));
+            bcls = mpl.getByteClassLoaders();
         }
     }
 
@@ -76,5 +78,9 @@ public final class MotoLoader extends JavaPlugin {
 
     public ArrayList<JavaPlugin> getLoadedPlugins() {
         return loadedPlugins;
+    }
+
+    public ArrayList<ByteClassLoader> getByteClassLoaders() {
+        return bcls;
     }
 }

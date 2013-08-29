@@ -48,17 +48,23 @@ class ByteClassLoader extends PluginClassLoader {
         try {
             if (classBytez.containsKey(name)) {
                 result = defineClass(name, classBytez.get(name), 0, classBytez.get(name).length, (CodeSource) null);
-            } else {
-                result = cl.loadClass(name);
-                if (result == null) result = super.loadClass(name, true);
-                if (result == null) result = getSystemClassLoader().loadClass(name);
-                if (result == null) result = MotoLoader.getInstance().getClass().getClassLoader().loadClass(name);
-                if (result == null) result = this.getClass().getClassLoader().loadClass(name);
-                if (result == null) {
-                    for (JavaPlugin p : MotoLoader.getInstance().getLoadedPlugins()) {
-                        result = p.getClass().getClassLoader().loadClass(name);
-                        if (result != null) break;
-                    }
+            }
+            if (result == null) result = cl.loadClass(name);
+            if (result == null) result = super.loadClass(name, true);
+            if (result == null) result = getSystemClassLoader().loadClass(name);
+            if (result == null) result = MotoLoader.getInstance().getClass().getClassLoader().loadClass(name);
+            if (result == null) result = this.getClass().getClassLoader().loadClass(name);
+            if(result == null) {
+                for(ByteClassLoader bcl : MotoLoader.getInstance().getByteClassLoaders()) {
+                    if(bcl == this) break;
+                    result = bcl.findClass(name);
+                    if(result != null) break;
+                }
+            }
+            if (result == null) {
+                for (JavaPlugin p : MotoLoader.getInstance().getLoadedPlugins()) {
+                    result = p.getClass().getClassLoader().loadClass(name);
+                    if (result != null) break;
                 }
             }
 
@@ -72,7 +78,7 @@ class ByteClassLoader extends PluginClassLoader {
     @Override
     public URL getResource(String name) {
         InputStream is = getResourceAsStream(name);
-        if(is == null) return null;
+        if (is == null) return null;
         File res = new File(resDir.getPath() + File.pathSeparator + name.replace("/", File.pathSeparator).replace(":", File.pathSeparator));
         res.getParentFile().mkdirs();
         try {
@@ -89,7 +95,7 @@ class ByteClassLoader extends PluginClassLoader {
 
     @Override
     public InputStream getResourceAsStream(String name) {
-        if(!resourceBytez.containsKey(name)) return null;
+        if (!resourceBytez.containsKey(name)) return null;
         return new ByteArrayInputStream(resourceBytez.get(name));
     }
 
@@ -113,7 +119,7 @@ class ByteClassLoader extends PluginClassLoader {
 
                 byte[] classBytes = bos.toByteArray();
 
-                if(!je.getName().endsWith(".class")) {
+                if (!je.getName().endsWith(".class")) {
                     addResource(je.getName(), classBytes);
                 } else {
                     //Get class name
