@@ -73,14 +73,15 @@ class ByteClassLoader extends PluginClassLoader {
     public URL getResource(String name) {
         InputStream is = getResourceAsStream(name);
         if(is == null) return null;
-        String path = resDir.getPath() + File.pathSeparator + name.replace("/", File.pathSeparator);
+        File res = new File(resDir.getPath() + File.pathSeparator + name.replace("/", File.pathSeparator).replace(":", File.pathSeparator));
+        res.getParentFile().mkdirs();
         try {
-            IOUtils.copy(is, new FileOutputStream(path));
+            IOUtils.copy(is, new FileOutputStream(res.getPath()));
         } catch (IOException e) {
             return null;
         }
         try {
-            return new File(path).toURI().toURL();
+            return new File(res.getPath()).toURI().toURL();
         } catch (MalformedURLException e) {
             return null;
         }
