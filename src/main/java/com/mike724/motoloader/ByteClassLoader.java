@@ -43,7 +43,7 @@ class ByteClassLoader extends PluginClassLoader {
     }
 
     @Override
-    public Class findClass(String name) {
+    public Class findClass(String name) throws ClassNotFoundException {
         Class result = null;
 
         if (classBytez.containsKey(name)) {
@@ -72,7 +72,10 @@ class ByteClassLoader extends PluginClassLoader {
         if (result == null) {
             for (ByteClassLoader bcl : MotoLoader.getInstance().getByteClassLoaders()) {
                 if (bcl == this) break;
-                result = bcl.findClass(name);
+                try {
+                    result = bcl.findClass(name);
+                } catch (Exception e) {
+                }
                 if (result != null) break;
             }
         }
@@ -86,6 +89,7 @@ class ByteClassLoader extends PluginClassLoader {
             }
         }
 
+        if(result == null) throw new ClassNotFoundException();
         return result;
     }
 
