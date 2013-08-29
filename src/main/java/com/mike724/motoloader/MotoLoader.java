@@ -64,7 +64,6 @@ public final class MotoLoader extends JavaPlugin {
             System.out.println("Getting plugin " + id);
             byte[] decrypted = JarGetter.getJar(id);
             loadedPlugins.add(mpl.loadPlugin(decrypted, this.getFile()));
-            bcls = mpl.getByteClassLoaders();
         }
     }
 

@@ -23,24 +23,17 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
 class MotoPluginLoader {
-    //private ByteClassLoader bcl;
     private JavaPlugin parent;
-    private ArrayList<ByteClassLoader> bcls;
 
     protected MotoPluginLoader(JavaPlugin parent) {
         this.parent = parent;
-        this.bcls = new ArrayList<>();
-        //bcl = new ByteClassLoader(parent);
     }
 
     protected JavaPlugin loadPlugin(byte[] bytes, File spoofFile) {
         try {
-            //JavaPlugin parent = bcl.getParentPlugin();
-
             PluginDescriptionFile description = getPluginDescription(bytes);
 
             ByteClassLoader bcl = new ByteClassLoader(parent, description.getName());
-            bcls.add(bcl);
             bcl.loadBytes(bytes, description.getName());
 
             JavaPlugin result;
@@ -49,7 +42,6 @@ class MotoPluginLoader {
             Class plugin = jarClass.asSubclass(JavaPlugin.class);
             Constructor<? extends JavaPlugin> constructor = plugin.getConstructor();
             result = constructor.newInstance();
-            //result.initialize(this.getPluginLoader(), this.getServer(), description, new File(this.getDataFolder(), description.getName()), this.getFile(), bcl);
             Method m = result.getClass().getSuperclass().getDeclaredMethod("initialize", PluginLoader.class, Server.class, PluginDescriptionFile.class, File.class, File.class, ClassLoader.class);
             m.setAccessible(true);
 
@@ -83,10 +75,6 @@ class MotoPluginLoader {
             e.printStackTrace();
             return null;
         }
-    }
-
-    public ArrayList<ByteClassLoader> getByteClassLoaders() {
-        return bcls;
     }
 
     private static byte[] getJarEntry(byte[] jarBytes, String fileName) throws IOException {

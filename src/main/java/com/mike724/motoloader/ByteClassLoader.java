@@ -16,6 +16,8 @@ import java.util.jar.JarInputStream;
 class ByteClassLoader extends PluginClassLoader {
     private HashMap<String, byte[]> classBytez = new HashMap<>();
     private HashMap<String, byte[]> resourceBytez = new HashMap<>();
+    private HashMap<String, Class> loaded = new HashMap<>();
+
     private ClassLoader cl;
 
     private JavaPlugin jp;
@@ -46,15 +48,19 @@ class ByteClassLoader extends PluginClassLoader {
     public Class findClass(String name) throws ClassNotFoundException {
         Class result = null;
 
-        if (classBytez.containsKey(name)) {
+        if (loaded.containsKey(name)) {
+            return loaded.get(name);
+        } else if (classBytez.containsKey(name)) {
             result = defineClass(name, classBytez.get(name), 0, classBytez.get(name).length, (CodeSource) null);
+
+            if (result != null) {
+                loaded.put(name, result);
+                classBytez.remove(name);
+                return result;
+            }
         }
         try {
             if (result == null) result = cl.loadClass(name);
-        } catch (Exception e) {
-        }
-        try {
-            if (result == null) result = super.loadClass(name, true);
         } catch (Exception e) {
         }
         try {
@@ -69,27 +75,18 @@ class ByteClassLoader extends PluginClassLoader {
             if (result == null) result = this.getClass().getClassLoader().loadClass(name);
         } catch (Exception e) {
         }
-        if (result == null) {
-            for (ByteClassLoader bcl : MotoLoader.getInstance().getByteClassLoaders()) {
-                if (bcl == this) break;
-                try {
-                    result = bcl.findClass(name);
-                } catch (Exception e) {
-                }
-                if (result != null) break;
-            }
-        }
+
         if (result == null) {
             for (JavaPlugin p : MotoLoader.getInstance().getLoadedPlugins()) {
                 try {
                     result = p.getClass().getClassLoader().loadClass(name);
                 } catch (Exception e) {
                 }
-                if (result != null) break;
+                if (result != null) return result;
             }
         }
 
-        if(result == null) throw new ClassNotFoundException();
+        if (result == null) throw new ClassNotFoundException();
         return result;
     }
 
