@@ -17,7 +17,7 @@ public final class MotoLoader extends JavaPlugin {
     private static MotoLoader instance;
 
     private ArrayList<JavaPlugin> loadedPlugins = new ArrayList<>();
-    private Integer[] requiredPlugins = {0};
+    private Integer[] requiredPlugins = {0, 1};
 
     @Override
     public void onEnable() {
