@@ -80,10 +80,10 @@ class MotoPluginLoader {
         }
     }
 
-    public Class getClassFromPool(String name) {
-        for(ByteClassLoader bcl : bcls) {
+    protected Class getClassFromPool(String name) {
+        for (ByteClassLoader bcl : bcls) {
             Class c = bcl.getLoadClass(name);
-            if(c != null) return c;
+            if (c != null) return c;
         }
         return null;
     }

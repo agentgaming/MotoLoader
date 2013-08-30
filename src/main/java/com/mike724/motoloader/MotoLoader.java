@@ -76,7 +76,7 @@ public final class MotoLoader extends JavaPlugin {
         return instance;
     }
 
-    public MotoPluginLoader getMotoPluginLoader() {
+    protected MotoPluginLoader getMotoPluginLoader() {
         return mpl;
     }
 
