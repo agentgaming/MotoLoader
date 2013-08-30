@@ -46,6 +46,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+
                             <artifactSet>
                                 <includes>
                                     <include>commons-logging:commons-logging</include>

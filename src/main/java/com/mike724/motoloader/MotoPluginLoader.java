@@ -35,8 +35,7 @@ class MotoPluginLoader {
         try {
             PluginDescriptionFile description = getPluginDescription(bytes);
 
-            ByteClassLoader bcl = new ByteClassLoader(parent, description.getName());
-            bcl.loadBytes(bytes, description.getName());
+            ByteClassLoader bcl = new ByteClassLoader(parent, bytes, description.getName());
             bcls.add(bcl);
 
             JavaPlugin result;

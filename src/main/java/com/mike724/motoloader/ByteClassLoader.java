@@ -13,31 +13,19 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
 class ByteClassLoader extends PluginClassLoader {
-    private HashMap<String, byte[]> resourceBytes = new HashMap<>();
     private HashMap<String, Class> classes = new HashMap<>();
 
-    private ClassLoader cl;
-
     private JavaPlugin jp;
-
     private File resDir;
 
-    public ByteClassLoader(JavaPlugin jp, String resName) {
+    private byte[] jarBytes;
+
+    public ByteClassLoader(JavaPlugin jp, byte[] jarBytes, String resName) {
         super((JavaPluginLoader) jp.getPluginLoader(), new URL[]{}, ByteClassLoader.class.getClassLoader());
         this.jp = jp;
-        this.cl = jp.getClass().getClassLoader();
         this.resDir = new File(jp.getDataFolder().getPath() + "/resources/" + resName);
-    }
 
-    private void addClass(String name, byte[] data) {
-        Class result = defineClass(name, data, 0, data.length);
-        if (result != null && !classes.containsKey(name)) {
-            classes.put(name, result);
-        }
-    }
-
-    private void addResource(String name, byte[] data) {
-        resourceBytes.put(name, data);
+        this.jarBytes = jarBytes;
     }
 
     @Override
@@ -49,8 +37,8 @@ class ByteClassLoader extends PluginClassLoader {
     public Class findClass(String name) throws ClassNotFoundException {
         Class result = null;
 
-        if (result == null && classes.containsKey(name)) {
-            result = classes.get(name);
+        if (result == null) {
+            result = getLoadClass(name);
         }
 
         if (result == null) {
@@ -74,7 +62,6 @@ class ByteClassLoader extends PluginClassLoader {
         }
 
         if (result == null) throw new ClassNotFoundException();
-        System.out.println(name + " loaded\n");
         return result;
     }
 
@@ -82,13 +69,16 @@ class ByteClassLoader extends PluginClassLoader {
     public URL getResource(String name) {
         InputStream is = getResourceAsStream(name);
         if (is == null) return null;
+
         File res = new File(resDir.getPath() + File.pathSeparator + name.replace("/", File.pathSeparator).replace(":", File.pathSeparator));
         res.getParentFile().mkdirs();
+
         try {
             IOUtils.copy(is, new FileOutputStream(res.getPath()));
         } catch (IOException e) {
             return null;
         }
+
         try {
             return new File(res.getPath()).toURI().toURL();
         } catch (MalformedURLException e) {
@@ -98,24 +88,42 @@ class ByteClassLoader extends PluginClassLoader {
 
     @Override
     public InputStream getResourceAsStream(String name) {
-        if (!resourceBytes.containsKey(name)) return null;
-        return new ByteArrayInputStream(resourceBytes.get(name));
+        byte[] rBytes = getResourceBytes(name);
+        if (rBytes == null) return null;
+        return new ByteArrayInputStream(rBytes);
     }
 
     protected Class getLoadClass(String name) {
         Class result = null;
-        if (classes.containsKey(name)) result = classes.get(name);
+        if (classes.containsKey(name)) {
+            result = classes.get(name);
+        } else {
+            byte[] classBytes = getClassBytes(name);
+            if (classBytes != null) {
+                result = defineClass(name, classBytes, 0, classBytes.length);
+                if (result != null) {
+                    classes.put(name, result);
+                    return result;
+                }
+            }
+        }
         return result;
     }
 
-    protected void loadBytes(byte[] jarBytes, String name) {
+    private byte[] getClassBytes(String name) {
+        byte[] classBytes = null;
         try {
-            ByteArrayInputStream bis = new ByteArrayInputStream(jarBytes);
+            ByteArrayInputStream bis = new ByteArrayInputStream(this.jarBytes);
             JarInputStream jis = new JarInputStream(bis);
-
             JarEntry je;
             while ((je = jis.getNextJarEntry()) != null) {
                 if (je.isDirectory()) continue;
+                if (!je.getName().endsWith(".class")) continue;
+
+                String className = je.getName().substring(0, je.getName().length() - 6);
+                className = className.replace('/', '.');
+
+                if (!className.equals(name)) continue;
 
                 //Get class bytes
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -126,23 +134,42 @@ class ByteClassLoader extends PluginClassLoader {
                     bos.write(data, 0, i);
                 }
 
-                byte[] classBytes = bos.toByteArray();
-
-                if (!je.getName().endsWith(".class")) {
-                    addResource(je.getName(), classBytes);
-                } else {
-                    //Get class name
-                    String className = je.getName().substring(0, je.getName().length() - 6);
-                    className = className.replace('/', '.');
-
-                    addClass(className, classBytes);
-                }
+                classBytes = bos.toByteArray();
             }
-            jis.close();
-            bis.close();
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
+        return classBytes;
+    }
+
+    private byte[] getResourceBytes(String name) {
+        byte[] resourceBytes = null;
+        try {
+            ByteArrayInputStream bis = new ByteArrayInputStream(this.jarBytes);
+            JarInputStream jis = new JarInputStream(bis);
+            JarEntry je;
+            while ((je = jis.getNextJarEntry()) != null) {
+                if (je.isDirectory()) continue;
+                if (!je.getName().equals(name)) continue;
+                if (je.getName().endsWith(".class")) continue;
+
+                //Get bytes
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                int i;
+                byte[] data = new byte[1024];
+
+                while ((i = jis.read(data, 0, data.length)) != -1) {
+                    bos.write(data, 0, i);
+                }
+
+                resourceBytes = bos.toByteArray();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return resourceBytes;
     }
 
     protected JavaPlugin getParentPlugin() {
