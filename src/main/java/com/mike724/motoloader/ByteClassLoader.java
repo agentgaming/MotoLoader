@@ -39,6 +39,14 @@ class ByteClassLoader extends PluginClassLoader {
         resourceBytez.put(name, data);
     }
 
+    public Class getLoadedClass(String name) {
+        if (loaded.containsKey(name)) {
+            return loaded.get(name);
+        } else {
+            return null;
+        }
+    }
+
     @Override
     public Class loadClass(String name) throws ClassNotFoundException {
         return findClass(name);
@@ -79,7 +87,7 @@ class ByteClassLoader extends PluginClassLoader {
         if (result == null) {
             for (JavaPlugin p : MotoLoader.getInstance().getLoadedPlugins()) {
                 try {
-                    result = p.getClass().getClassLoader().loadClass(name);
+                    result = ((ByteClassLoader) p.getClass().getClassLoader()).getLoadedClass(name);
                 } catch (Exception e) {
                 }
                 if (result != null) return result;
