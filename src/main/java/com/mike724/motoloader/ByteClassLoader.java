@@ -39,11 +39,16 @@ class ByteClassLoader extends PluginClassLoader {
         resourceBytez.put(name, data);
     }
 
-    public Class getLoadedClass(String name) {
+    public Class getLoadedClass(String name) throws ClassNotFoundException {
         if (loaded.containsKey(name)) {
             return loaded.get(name);
         } else {
-            return null;
+            try {
+                return findClass(name);
+            } catch(ClassNotFoundException e) {
+                return null;
+            }
+
         }
     }
 
