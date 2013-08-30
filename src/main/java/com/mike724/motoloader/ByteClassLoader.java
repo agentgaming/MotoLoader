@@ -1,6 +1,7 @@
 package com.mike724.motoloader;
 
 import org.apache.commons.io.IOUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
 import org.bukkit.plugin.java.PluginClassLoader;
@@ -8,15 +9,13 @@ import org.bukkit.plugin.java.PluginClassLoader;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.CodeSource;
 import java.util.HashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
 class ByteClassLoader extends PluginClassLoader {
-    private HashMap<String, byte[]> classBytez = new HashMap<>();
-    private HashMap<String, byte[]> resourceBytez = new HashMap<>();
-    private HashMap<String, Class> loaded = new HashMap<>();
+    private HashMap<String, byte[]> resourceBytes = new HashMap<>();
+    private HashMap<String, Class> classes = new HashMap<>();
 
     private ClassLoader cl;
 
@@ -32,24 +31,14 @@ class ByteClassLoader extends PluginClassLoader {
     }
 
     private void addClass(String name, byte[] data) {
-        classBytez.put(name, data);
+        Class result = defineClass(name, data, 0, data.length);
+        if(result != null && !classes.containsKey(name)) {
+            classes.put(name, result);
+        }
     }
 
     private void addResource(String name, byte[] data) {
-        resourceBytez.put(name, data);
-    }
-
-    public Class getLoadedClass(String name) throws ClassNotFoundException {
-        if (loaded.containsKey(name)) {
-            return loaded.get(name);
-        } else {
-            try {
-                return findClass(name);
-            } catch(ClassNotFoundException e) {
-                return null;
-            }
-
-        }
+        resourceBytes.put(name, data);
     }
 
     @Override
@@ -61,45 +50,47 @@ class ByteClassLoader extends PluginClassLoader {
     public Class findClass(String name) throws ClassNotFoundException {
         Class result = null;
 
-        if (loaded.containsKey(name)) {
-            return loaded.get(name);
-        } else if (classBytez.containsKey(name)) {
-            result = defineClass(name, classBytez.get(name), 0, classBytez.get(name).length, (CodeSource) null);
-
-            if (result != null) {
-                loaded.put(name, result);
-                classBytez.remove(name);
-                return result;
-            }
-        }
         try {
-            if (result == null) result = cl.loadClass(name);
-        } catch (Exception e) {
-        }
-        try {
-            if (result == null) result = getSystemClassLoader().loadClass(name);
-        } catch (Exception e) {
-        }
-        try {
-            if (result == null) result = MotoLoader.getInstance().getClass().getClassLoader().loadClass(name);
-        } catch (Exception e) {
-        }
-        try {
-            if (result == null) result = this.getClass().getClassLoader().loadClass(name);
-        } catch (Exception e) {
+            result = Bukkit.class.getClassLoader().loadClass(name);
+        } catch (ClassNotFoundException e) {
+            result = null;
         }
 
-        if (result == null) {
-            for (JavaPlugin p : MotoLoader.getInstance().getLoadedPlugins()) {
-                try {
-                    result = ((ByteClassLoader) p.getClass().getClassLoader()).getLoadedClass(name);
-                } catch (Exception e) {
-                }
-                if (result != null) return result;
+        try {
+            result = super.findClass(name);
+        } catch (ClassNotFoundException e) {
+            result = null;
+        }
+
+        if(result == null) {
+            try {
+                result = getSystemClassLoader().loadClass(name);
+            } catch (ClassNotFoundException e) {
+                result = null;
             }
         }
 
-        if (result == null) throw new ClassNotFoundException();
+        if(result == null) {
+            try {
+                result = cl.loadClass(name);
+            } catch (ClassNotFoundException e) {
+                result = null;
+            }
+        }
+
+        if(result == null) {
+            try {
+                result = cl.getParent().loadClass(name);
+            } catch (ClassNotFoundException e) {
+                result = null;
+            }
+        }
+
+        if(result == null && classes.containsKey(name)) result = classes.get(name);
+
+        if(result == null) result = MotoLoader.getInstance().getMotoPluginLoader().getClassFromPool(name);
+
+        if(result == null) throw new ClassNotFoundException();
         return result;
     }
 
@@ -123,8 +114,14 @@ class ByteClassLoader extends PluginClassLoader {
 
     @Override
     public InputStream getResourceAsStream(String name) {
-        if (!resourceBytez.containsKey(name)) return null;
-        return new ByteArrayInputStream(resourceBytez.get(name));
+        if (!resourceBytes.containsKey(name)) return null;
+        return new ByteArrayInputStream(resourceBytes.get(name));
+    }
+
+    protected Class getLoadClass(String name) {
+        Class result = null;
+        if(classes.containsKey(name)) result = classes.get(name);
+        return result;
     }
 
     protected void loadBytes(byte[] jarBytes, String name) {

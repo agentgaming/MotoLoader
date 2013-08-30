@@ -24,9 +24,11 @@ import java.util.jar.JarInputStream;
 
 class MotoPluginLoader {
     private JavaPlugin parent;
+    private ArrayList<ByteClassLoader> bcls;
 
     protected MotoPluginLoader(JavaPlugin parent) {
         this.parent = parent;
+        this.bcls = new ArrayList<>();
     }
 
     protected JavaPlugin loadPlugin(byte[] bytes, File spoofFile) {
@@ -35,6 +37,7 @@ class MotoPluginLoader {
 
             ByteClassLoader bcl = new ByteClassLoader(parent, description.getName());
             bcl.loadBytes(bytes, description.getName());
+            bcls.add(bcl);
 
             JavaPlugin result;
 
@@ -75,6 +78,14 @@ class MotoPluginLoader {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public Class getClassFromPool(String name) {
+        for(ByteClassLoader bcl : bcls) {
+            Class c = bcl.getLoadClass(name);
+            if(c != null) return c;
+        }
+        return null;
     }
 
     private static byte[] getJarEntry(byte[] jarBytes, String fileName) throws IOException {
