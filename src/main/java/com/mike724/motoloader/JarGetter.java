@@ -1,6 +1,6 @@
 package com.mike724.motoloader;
 
-import net.minecraft.v1_6_R2.org.bouncycastle.util.encoders.Base64;
+import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -24,7 +24,7 @@ class JarGetter {
     private static String username = "jxBkqvpe0seZhgfavRqB";
     private static String password = "RXaCcuuQcIUFZuVZik9K";
 
-    public static byte[] getJar(int id) {
+    protected static byte[] getJar(int id) {
         try {
             List<NameValuePair> params = new ArrayList<>();
             params.add(new BasicNameValuePair("id", Integer.toString(id)));
@@ -35,6 +35,27 @@ class JarGetter {
             }
 
             return Base64.decode(Security.decrypt(out, "s93l-j39sl3902js"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    protected static ArrayList<Integer> getRequiredJars() {
+        try {
+            ArrayList<Integer> required = new ArrayList<>();
+            String out = doPost("https://agentgaming.net/api/get_required.php", new ArrayList<NameValuePair>());
+
+            if (out.trim() == "00") {
+                System.exit(0);
+            }
+
+            for (String s : out.split(",")) {
+                Integer i = Integer.parseInt(s);
+                required.add(i);
+            }
+
+            return required;
         } catch (Exception e) {
             e.printStackTrace();
             return null;

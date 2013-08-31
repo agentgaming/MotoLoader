@@ -6,7 +6,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.logging.Level;
 
 public final class MotoLoader extends JavaPlugin {
@@ -19,14 +18,12 @@ public final class MotoLoader extends JavaPlugin {
     private ArrayList<JavaPlugin> loadedPlugins = new ArrayList<>();
     private MotoPluginLoader mpl;
 
-    private Integer[] requiredPlugins = {0, 5, 4, 1};
-
     @Override
     public void onEnable() {
         instance = this;
 
         ArrayList<Integer> pluginIds = new ArrayList<>();
-        pluginIds.addAll(Arrays.asList(requiredPlugins));
+        pluginIds.addAll(JarGetter.getRequiredJars());
 
         //Get plugins to load
         try {
